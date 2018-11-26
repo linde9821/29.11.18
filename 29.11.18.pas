@@ -28,6 +28,7 @@ begin
 	
 	Close(FileStr);
 	writeln('Abgeschlossen');
+	writeln();
 end;
 
 procedure aufgabe1_2();
@@ -51,6 +52,7 @@ begin
 	
 	Close(FileInt);
 	writeln('Abgeschlossen');
+	writeln();
 end;
 
 procedure aufgabe1_3();
@@ -75,6 +77,7 @@ begin
 	
 	Close(FileBoolean);
 	writeln('Abgeschlossen');
+	writeln();
 end;
 
 //Nachfragen ob korrekt wegen größe 
@@ -109,6 +112,7 @@ begin
 	
 	Close(FileInt64);
 	writeln('Abgeschlossen');
+	writeln();
 end;
 
 procedure aufgabe1_5();
@@ -136,6 +140,7 @@ begin
 	
 	Close(FileExtReal);
 	writeln('Abgeschlossen');
+	writeln();
 end;
 
 procedure aufgabe1_6();
@@ -159,6 +164,7 @@ begin
 	
 	Close(FileInt);
 	writeln('Abgeschlossen');
+	writeln();
 end;
 
 procedure aufgabe1_7();
@@ -182,6 +188,7 @@ begin
 	
 	Close(FileStr);
 	writeln('Abgeschlossen');
+	writeln();
 end;
 
 procedure aufgabe_2();
@@ -214,18 +221,122 @@ begin
 	
 	repeat
 		read(FileInt, i);
-		write(i);
+		write(i, ' ');
 	until eof(FileInt);
 	
 	writeln();
 	Close(FileInt);
 	writeln('Abgeschlossen');
+	writeln();
+end;
+
+type LottoDatensatz = record
+	zahlen : array[0..7] of integer;
+	Datum : String;
+end;
+
+//Zeigt LottoDatensatz an
+procedure showDatensatz(Datensatz : LottoDatensatz);
+var 
+	j : integer;
+begin
+	writeln('Datum: ', Datensatz.datum);
+	writeln('Superzahl: ', Datensatz.zahlen[0]);
+		
+	for j := 1 to 7 do writeln('Zahl', j, ': ', Datensatz.zahlen[j]);
 end;
 
 //Lotto
-procedure aufgabe_3());
+procedure aufgabe_3();
+var 
+	FileName, Datum : String;
+	FileLotto : Text;
+	i, j, amount : integer;
+	Datensatz : LottoDatensatz;
 begin 
+	FileName := verzeichnisName + 'LottoDatensatz.lds';
+	
+	writeln('Lottodatensatz/-datensaetze erzeugen und in ' , FileName, ' speichern'); 
+	writeln('Wie viele Lottodatensaetze sollen erzeugt werden?: ');
+	readln(amount);
 
+	//Generiert neue Datensätze und speichert sie 
+	Assign(FileLotto, FileName);
+	Append(FileLotto);
+	
+	for i := 0 to amount - 1 do
+	begin
+		writeln('Generiere Datensatz ', i+1);
+		Datensatz.zahlen[0] := Random(6) + 1;
+	
+		for j := 1 to 7 do Datensatz.zahlen[j] := Random(42) + 1;
+		
+		writeln('Datum zur Ziehung (DDMMYY): ');
+		readln(Datum);
+		
+		writeln(FileLotto, Datum);
+		Datensatz.datum := datum;
+		
+		for j := 0 to 7 do writeln(FileLotto, IntToStr(Datensatz.zahlen[j]));
+		
+		writeln('Generiert');
+		
+		showDatensatz(Datensatz);
+	end;
+	
+	Close(FileLotto);
+	writeln('Abgeschlossen');
+	writeln();
+end;
+
+procedure aufgabe_4();
+var
+	FileName, temp : String;
+	FileLotto : Text;
+	Datum : String;
+	found : boolean;
+	Datensatz : LottoDatensatz;
+	j : integer;
+begin
+	found := false;
+	FileName := verzeichnisName + 'LottoDatensatz.lds';
+	
+	writeln('Lottodatensatz aus ' , FileName, ' laden entsprechend des Datums'); 
+	writeln('Datum zum Ziehungssuchen (DDMMYY): ');
+	readln(Datum);
+	
+	Assign(FileLotto, FileName);
+	reset(FileLotto);
+	
+	repeat
+		readln(FileLotto, Datensatz.Datum);
+		
+		for j := 0 to 7 do 
+		begin
+			readln(FileLotto, temp);
+			Datensatz.zahlen[j] := StrToInt(temp);
+		end;
+		
+		if Datum = Datensatz.Datum then 
+		begin
+			found := true;
+			break;
+		end;
+	until eof (FileLotto);
+	
+	Close(FileLotto);
+	
+	if found then
+	begin
+		writeln('Datensatz gefunden und geladen');
+		
+		showDatensatz(Datensatz);
+		
+	end
+	else writeln('Kein Datensatz gefunden');
+	
+	writeln('Abgeschlossen');
+	writeln();
 end;
 	
 begin
@@ -240,5 +351,8 @@ begin
 	aufgabe1_7();
 	
 	aufgabe_2();
+
+	aufgabe_3();
+	aufgabe_4();
 
 end.
